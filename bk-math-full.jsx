@@ -319,7 +319,16 @@ function QuizScreen({student, allResults, onSave, onHome}) {
     clearTimer();
     const val = expired ? "" : inp.trim();
     const q = sessionQs[cur];
-    const ok = val.replace(/\s/g,"").toLowerCase() === q.o.a.replace(/\s/g,"").toLowerCase();
+    const normalize = s => {
+      let v = s.trim().toLowerCase().replace(/\s/g,"");
+      v = v.replace(/^\+/,"");           // +4 → 4
+      v = v.replace(/=\+/g,"=");         // x=+2 → x=2
+      v = v.replace(/x=\+/g,"x=");       // x=+3 → x=3
+      v = v.replace(/배가된다/g,"배");    // 2배가된다 → 2배
+      v = v.replace(/배가\s*된다/g,"배"); // 2배가 된다 → 2배
+      return v;
+    };
+    const ok = normalize(val) === normalize(q.o.a);
     const na = [...answers];
     na[cur] = { inp: val, ok, expired };
     setAnswers(na);
